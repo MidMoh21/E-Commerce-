@@ -1,6 +1,7 @@
 package com.example.SuperMarket.service;
 
 
+import com.example.SuperMarket.dto.LoginRequestDTO;
 import com.example.SuperMarket.dto.UserRequestDTO;
 import com.example.SuperMarket.dto.UserResponseDTO;
 import com.example.SuperMarket.mapper.UserMapper;
@@ -36,6 +37,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public User loginUser(LoginRequestDTO loginRequestDTO) {
+        User user = userRepository.findByEmail(loginRequestDTO.getEmail());
+        if (user == null || !user.getPassword().equals(loginRequestDTO.getPassword())) {
+            return null; // Invalid email or password
+        }
+        return user; // Login successful
+    }
+    
     public List<UserResponseDTO> getAllUsers() {
 
         List<User> users = userRepository.findAll();
@@ -67,5 +76,11 @@ public class UserService {
             throw new IllegalArgumentException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public UserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+        return userMapper.toUserResponseDTO(user);
     }
 }
